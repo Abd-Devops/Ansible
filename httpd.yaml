@@ -1,23 +1,39 @@
 ---
 - name: Install and configure webserver
-  hosts: nodes
+  hosts: hosts
   become: yes
   tasks:
     - name: Install apache
       apt:
         name:
-          - apache2
+        - apache2
         state: latest
 
-    - name : Enable and start service
-      service: 
-        name : apache2
-        enabled : true
-        state : started 
+  ^V- name : Enable and start service
+      service:
+        name: apache2
+        enabled: true
+        state: started
 
     - name : Open firewall ports
       firewalld:
         service: http # or https
-        permanent : true
-        state : enabled
-        immediate : yes
+        permanent: true
+        state: enabled
+        immediate: yes
+
+    - name : copy html contents
+      copy:
+        content: "welcome to out abdul anisble nodes"
+        dest: /var/www/html/index.html
+
+
+
+- name: test and verify the webserver 
+  hosts: localhost
+  become: no
+  tasks:
+    - name: connect to webserver and check status code
+      uri:
+        url: http://node1
+        status_code: 200 #if webserver returns 200 then this task will be passed else failed
